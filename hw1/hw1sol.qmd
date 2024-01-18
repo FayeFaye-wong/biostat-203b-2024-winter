@@ -86,12 +86,56 @@ do
 done
 ```
 Display the number of lines in each data file using a similar loop. (Hint: combine linux commands `zcat <` and `wc -l`.)
+```{bash}
+for datafile in /Users/huangfeifei/Documents/203B/mimic/hosp/{a,l,pa}*.gz
+do
+  zcat < $datafile | wc -l
+done
+```
 
 5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? Do they match the number of patients listed in the `patients.csv.gz` file? (Hint: combine Linux commands `zcat <`, `head`/`tail`, `awk`, `sort`, `uniq`, `wc`, and so on.)
 
+**Answer:** The first few lines of `admissions.csv.gz` are:
+```{bash}
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | awk -F, 'NR<=10 {print}'
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | wc -l
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | awk -F, '{print $1}'  | uniq | wc -l
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/patients.csv.gz | wc -l
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/patients.csv.gz | awk -F, '{print $1}'  | uniq | wc -l
+```
+
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, and so on; skip the header line.)
 
+**Answer:** The possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity` are:
+```{bash}
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | awk -F, 'NR > 1 {print $6}' | sort   | uniq -c
+```
+```{bash}
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | awk -F, 'NR > 1 {print $8}' | sort | uniq -c
+```
+```{bash}
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | awk -F, 'NR > 1 {print $10}' | sort | uniq -c
+```
+
+```{bash}
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | awk -F, 'NR > 1 {print $13}' | sort | uniq -c
+```
+
+
 7. _To compress, or not to compress. That's the question._ Let's focus on the big data file `labevents.csv.gz`. Compare compressed gz file size to the uncompressed file size. Compare the run times of `zcat < ~/mimic/labevents.csv.gz | wc -l` versus `wc -l labevents.csv`. Discuss the trade off between storage and speed for big data files. (Hint: `gzip -dk < FILENAME.gz > ./FILENAME`. Remember to delete the large `labevents.csv` file after the exercise.)
+**Answer:** 
+```{bash}
+gzip -dk < /Users/huangfeifei/Documents/203B/mimic/hosp/labevents.csv.gz > /Users/huangfeifei/Documents/203B/mimic/hosp/labevents.csv
+```
+
+```{bash}
+time zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/labevents.csv.gz | wc -l
+```
+```{bash}
+time wc -l /Users/huangfeifei/Documents/203B/mimic/hosp/labevents.csv| wc -l
+```
+
+The running time of `zcat < ~/mimic/labevents.csv.gz | wc -l` is 0m19.117s The running time of `wc -l labevents.csv` is 0m8.164s. The compressed gz file size is 1.94G. The uncompressed file size is 13.73G. The trade off between storage and speed for big data files is that the compressed gz file size is smaller than the uncompressed file size, but the running time of `zcat < ~/mimic/labevents.csv.gz | wc -l` is longer than the running time of `wc -l labevents.csv`.
 
 ## Q4. Who's popular in Price and Prejudice
 
@@ -111,6 +155,21 @@ do
 done
 ```
 
+**Answer:** The `wget -nc` command is used to download the file from the website. The `-nc` option is used to not download the file if it is already downloaded. 
+
+```{bash}
+wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+```
+
+```{bash}
+for char in Elizabeth Jane Lydia Darcy
+do
+  echo $char:
+  zgrep -o $char pg42671.txt | wc -l
+done
+```
+
+
 2. What's the difference between the following two commands?
 ```{bash}
 #| eval: false
@@ -121,6 +180,8 @@ and
 #| eval: false
 echo 'hello, world' >> test2.txt
 ```
+
+**Answer:** The first command `echo 'hello, world' > test1.txt` will create a new file `test1.txt` and write the string `hello, world` to the file. The second command `echo 'hello, world' >> test2.txt` will append the string `hello, world` to the file `test2.txt`.
 
 3. Using your favorite text editor (e.g., `vi`), type the following and save the file as `middle.sh`:
 ```{bash eval=FALSE}
@@ -134,11 +195,87 @@ Using `chmod` to make the file executable by the owner, and run
 #| eval: false
 ./middle.sh pg42671.txt 20 5
 ```
+**Answer:** I used `vi` to type the following and saved the file as `middle.sh`
+```{bash}
+chmod u+x middle.sh
+```
+```{bash}
+./middle.sh pg42671.txt 20 5
+```
 Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this shell script. Why do we need the first line of the shell script?
+Here the output is the lines starting from line 20 and includes the following 5 lines of the file `pg42671.txt`. The `"$1"` is the first argument, which is the file name. The `"$2"` is the second argument, which is the end line. `"tail -n "$3"`: This command takes the output from the previous head command and retrieves the last `"$3"` lines. The variable `"$3"` represents the third argument passed to the script, which is the number of lines to select.
+
 
 ## Q5. More fun with Linux
 
 Try following commands in Bash and interpret the results: `cal`, `cal 2024`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
+
+**Answer:** 
+```{bash}   
+cal
+```
+This shows the calendar for the current month.
+```{bash}
+cal 2024
+```
+This shows the calendar for the year 2024.
+```{bash}
+cal 9 1752
+```
+This shows the calendar for the month September in the year 1752. The calendar for the month September in the year 1752 is unusual because the calendar for the month September in the year 1752 is missing 11 days. The calendar for the month September in the year 1752 is missing 11 days because the Gregorian calendar was adopted in the year 1752.
+```{bash}
+date
+```
+This shows the current date and time.
+```{bash}
+hostname
+```
+This shows the name of the computer.
+```{bash}
+arch
+```
+This shows the architecture of the system's processor or CPU.
+```{bash}
+uname -a 
+```
+This shows comprehensive output that includes the following information: Kernel name, Network node hostname, Kernel release, Kernel version, Machine hardware name, Processor type, Hardware platform, Operating system.
+```{bash}
+uptime
+```
+This shows the current time, how long the system has been running, how many users are currently logged on, and the system load averages for the past 1, 5, and 15 minutes.
+```{bash}
+who am i
+```
+This shows the username of the current user who is executing the command and current time.
+```{bash}
+who
+```
+This shows more detailed information about the users who are currently logged into the system. It displays a list of all logged-in users, their terminal or device, and login time.
+```{bash}
+w
+```
+Information about the currently logged-in users and their activities on a system. It provides a detailed overview of each user's login session, including their username, terminal or device, login time, idle time.
+```{bash}
+id
+```
+This shows the user and group information for the current user.
+```{bash}
+last | head
+```
+This shows the list of last logged in users. The `head` command is used to display the first 10 lines of the output.
+```{bash}
+echo {con,pre}{sent,fer}{s,ed}
+```
+This shows expansion of the curly brace notation, which generates a combination of words based on the provided options.
+```{bash}
+time sleep 5
+```
+This shows the time it takes to execute the command `sleep 5`. The `sleep 5` command is used to pause the execution of the command for 5 seconds.
+```{bash}
+history | tail
+```
+This shows the last 10 commands that were executed. The `tail` command is used to display the last 10 lines of the output.
+
 
 ## Q6. Book
 
