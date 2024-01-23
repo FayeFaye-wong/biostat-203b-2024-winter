@@ -23,7 +23,6 @@ knitr:
 
 Display machine information for reproducibility:
 ```{r}
-#| eval: false
 sessionInfo()
 ```
 
@@ -89,7 +88,7 @@ Display the number of lines in each data file using a similar loop. (Hint: combi
 ```{bash}
 for datafile in /Users/huangfeifei/Documents/203B/mimic/hosp/{a,l,pa}*.gz
 do
-  zcat < $datafile | wc -l
+zcat < $datafile | wc -l $datafile
 done
 ```
 
@@ -98,10 +97,22 @@ done
 **Answer:** The first few lines of `admissions.csv.gz` are:
 ```{bash}
 zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | awk -F, 'NR<=10 {print}'
+```
+There are 431,232 rows in this data file. 
+```{bash}
 zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | wc -l
-zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | awk -F, '{print $1}'  | uniq | wc -l
+```
+There are 180,733 unique patients in this data file.
+```{bash}
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F, '{print $1}'  | uniq | wc -l
+```
+The number of rows in the `patients.csv.gz` file is 299,713.
+```{bash}
 zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/patients.csv.gz | wc -l
-zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/patients.csv.gz | awk -F, '{print $1}'  | uniq | wc -l
+```
+The number of patients listed in the `patients.csv.gz` file is 299,712. The number of patients listed in the `patients.csv.gz` file matches the number of unique patients in the `admissions.csv.gz` file.
+```{bash}
+zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/patients.csv.gz | tail -n +2 | awk -F, '{print $1}'  | uniq | wc -l
 ```
 
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, and so on; skip the header line.)
