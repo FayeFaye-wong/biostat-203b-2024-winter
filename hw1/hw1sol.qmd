@@ -146,7 +146,7 @@ time zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/labevents.csv.gz | wc -
 time wc -l /Users/huangfeifei/Documents/203B/mimic/hosp/labevents.csv| wc -l
 ```
 
-The running time of `zcat < ~/mimic/labevents.csv.gz | wc -l` is 0m19.117s The running time of `wc -l labevents.csv` is 0m8.164s. The compressed gz file size is 1.94G. The uncompressed file size is 13.73G. The trade off between storage and speed for big data files is that the compressed gz file size is smaller than the uncompressed file size, but the running time of `zcat < ~/mimic/labevents.csv.gz | wc -l` is longer than the running time of `wc -l labevents.csv`.
+The running time of `zcat < ~/mimic/labevents.csv.gz | wc -l` is about 0m19s The running time of `wc -l labevents.csv` is about 0m8s. The compressed gz file size is 1.94G. The uncompressed file size is 13.73G. The trade off between storage and speed for big data files is that the compressed gz file size is smaller than the uncompressed file size, but the running time of `zcat < ~/mimic/labevents.csv.gz | wc -l` is longer than the running time of `wc -l labevents.csv`.
 
 ## Q4. Who's popular in Price and Prejudice
 

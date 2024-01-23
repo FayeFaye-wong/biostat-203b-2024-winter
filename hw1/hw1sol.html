@@ -3174,7 +3174,7 @@ loaded via a namespace (and not attached):
 -rw-rw-r--@  1 huangfeifei  staff  13332 Jan  5  2023 CHANGELOG.txt
 -rw-rw-r--@  1 huangfeifei  staff   2518 Jan  5  2023 LICENSE.txt
 -rw-rw-r--@  1 huangfeifei  staff   2884 Jan  6  2023 SHA256SUMS.txt
-drwxr-xr-x@ 26 huangfeifei  staff    832 Jan 17 19:21 hosp
+drwxr-xr-x@ 26 huangfeifei  staff    832 Jan 22 20:23 hosp
 drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 </div>
 </div>
@@ -3197,7 +3197,7 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 -rw-rw-r--@ 1 huangfeifei  staff    508524623 Jan  5  2023 emar.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff    471096030 Jan  5  2023 emar_detail.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff      1767138 Jan  5  2023 hcpcsevents.csv.gz
--rw-r--r--  1 huangfeifei  staff  13730083993 Jan 22 19:40 labevents.csv
+-rw-r--r--  1 huangfeifei  staff  13730083993 Jan 22 20:26 labevents.csv
 -rw-rw-r--@ 1 huangfeifei  staff   1939088924 Jan  5  2023 labevents.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff     96698496 Jan  5  2023 microbiologyevents.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff     36124944 Jan  5  2023 omr.csv.gz
@@ -3393,9 +3393,9 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code> 118171368
 
-real    0m19.545s
-user    0m25.526s
-sys 0m1.445s</code></pre>
+real    0m19.581s
+user    0m25.609s
+sys 0m1.541s</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3403,12 +3403,12 @@ sys 0m1.445s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>       1
 
-real    0m8.275s
-user    0m6.358s
-sys 0m1.355s</code></pre>
+real    0m8.557s
+user    0m6.520s
+sys 0m1.424s</code></pre>
 </div>
 </div>
-<p>The running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is 0m19.117s The running time of <code>wc -l labevents.csv</code> is 0m8.164s. The compressed gz file size is 1.94G. The uncompressed file size is 13.73G. The trade off between storage and speed for big data files is that the compressed gz file size is smaller than the uncompressed file size, but the running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is longer than the running time of <code>wc -l labevents.csv</code>.</p>
+<p>The running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is about 0m19s The running time of <code>wc -l labevents.csv</code> is about 0m8s. The compressed gz file size is 1.94G. The uncompressed file size is 13.73G. The trade off between storage and speed for big data files is that the compressed gz file size is smaller than the uncompressed file size, but the running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is longer than the running time of <code>wc -l labevents.csv</code>.</p>
 </section>
 <section id="q4.-whos-popular-in-price-and-prejudice" class="level2">
 <h2 class="anchored" data-anchor-id="q4.-whos-popular-in-price-and-prejudice">Q4. Who’s popular in Price and Prejudice</h2>
@@ -3568,7 +3568,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Mon Jan 22 20:03:32 PST 2024</code></pre>
+<pre><code>Mon Jan 22 20:29:21 PST 2024</code></pre>
 </div>
 </div>
 <p>This shows the current date and time.</p>
@@ -3596,14 +3596,14 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>20:03  up 13 days,  4:16, 1 user, load averages: 1.67 1.64 1.58</code></pre>
+<pre><code>20:29  up 13 days,  4:42, 1 user, load averages: 1.86 1.90 1.71</code></pre>
 </div>
 </div>
 <p>This shows the current time, how long the system has been running, how many users are currently logged on, and the system load averages for the past 1, 5, and 15 minutes.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>huangfei tty??    Jan 22 20:03 </code></pre>
+<pre><code>huangfei tty??    Jan 22 20:29 </code></pre>
 </div>
 </div>
 <p>This shows the username of the current user who is executing the command and current time.</p>
@@ -3617,7 +3617,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>20:03  up 13 days,  4:16, 1 user, load averages: 1.67 1.64 1.58
+<pre><code>20:29  up 13 days,  4:42, 1 user, load averages: 1.86 1.90 1.71
 USER     TTY      FROM              LOGIN@  IDLE WHAT
 huangfeifei console  -                09Jan24 13days -</code></pre>
 </div>
@@ -3657,9 +3657,9 @@ shutdown  ~                         Tue Jan  9 15:46 </code></pre>
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.014s
+real    0m5.012s
 user    0m0.001s
-sys 0m0.002s</code></pre>
+sys 0m0.003s</code></pre>
 </div>
 </div>
 <p>This shows the time it takes to execute the command <code>sleep 5</code>. The <code>sleep 5</code> command is used to pause the execution of the command for 5 seconds.</p>
