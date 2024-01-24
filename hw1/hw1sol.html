@@ -3197,7 +3197,7 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 -rw-rw-r--@ 1 huangfeifei  staff    508524623 Jan  5  2023 emar.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff    471096030 Jan  5  2023 emar_detail.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff      1767138 Jan  5  2023 hcpcsevents.csv.gz
--rw-r--r--  1 huangfeifei  staff  13730083993 Jan 23 21:49 labevents.csv
+-rw-r--r--  1 huangfeifei  staff  13730083993 Jan 23 21:53 labevents.csv
 -rw-rw-r--@ 1 huangfeifei  staff   1939088924 Jan  5  2023 labevents.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff     96698496 Jan  5  2023 microbiologyevents.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff     36124944 Jan  5  2023 omr.csv.gz
@@ -3298,7 +3298,7 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 <pre><code>  299713</code></pre>
 </div>
 </div>
-<p>The number of patients listed in the <code>patients.csv.gz</code> file is 299,712. The number of patients listed in the <code>patients.csv.gz</code> file matches the number of unique patients in the <code>admissions.csv.gz</code> file.</p>
+<p>The number of patients listed in the <code>patients.csv.gz</code> file is 299,712. The number of patients listed in the <code>patients.csv.gz</code> file does not match the number of unique patients in the <code>admissions.csv.gz</code> file.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> /Users/huangfeifei/Documents/203B/mimic/hosp/patients.csv.gz <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F,</span> <span class="st">&#39;{print $1}&#39;</span>  <span class="kw">|</span> <span class="fu">uniq</span> <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3397,8 +3397,8 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 <pre><code> 118171368
 
 real    0m19.585s
-user    0m25.812s
-sys 0m1.613s</code></pre>
+user    0m25.987s
+sys 0m1.604s</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3406,9 +3406,9 @@ sys 0m1.613s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>       1
 
-real    0m9.193s
-user    0m6.729s
-sys 0m1.524s</code></pre>
+real    0m9.584s
+user    0m6.763s
+sys 0m1.595s</code></pre>
 </div>
 </div>
 <p>The running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is about 0m19s The running time of <code>wc -l labevents.csv</code> is about 0m8s. The compressed gz file size is 1.94G. The uncompressed file size is 13.73G. The trade off between storage and speed for big data files is that the compressed gz file size is smaller than the uncompressed file size, but the running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is longer than the running time of <code>wc -l labevents.csv</code>.</p>
@@ -3571,7 +3571,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Tue Jan 23 21:53:47 PST 2024</code></pre>
+<pre><code>Tue Jan 23 23:14:12 PST 2024</code></pre>
 </div>
 </div>
 <p>This shows the current date and time.</p>
@@ -3599,14 +3599,14 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>21:53  up 14 days,  6:06, 1 user, load averages: 3.22 3.12 2.95</code></pre>
+<pre><code>23:14  up 14 days,  7:27, 1 user, load averages: 3.56 2.98 2.84</code></pre>
 </div>
 </div>
 <p>This shows the current time, how long the system has been running, how many users are currently logged on, and the system load averages for the past 1, 5, and 15 minutes.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>huangfei tty??    Jan 23 21:53 </code></pre>
+<pre><code>huangfei tty??    Jan 23 23:14 </code></pre>
 </div>
 </div>
 <p>This shows the username of the current user who is executing the command and current time.</p>
@@ -3620,7 +3620,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>21:53  up 14 days,  6:06, 1 user, load averages: 3.22 3.12 2.95
+<pre><code>23:14  up 14 days,  7:27, 1 user, load averages: 3.56 2.98 2.84
 USER     TTY      FROM              LOGIN@  IDLE WHAT
 huangfeifei console  -                09Jan24 14days -</code></pre>
 </div>
@@ -3660,8 +3660,8 @@ shutdown  ~                         Tue Jan  9 15:46 </code></pre>
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.027s
-user    0m0.002s
+real    0m5.019s
+user    0m0.001s
 sys 0m0.003s</code></pre>
 </div>
 </div>

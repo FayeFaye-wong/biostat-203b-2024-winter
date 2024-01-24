@@ -111,7 +111,7 @@ The number of rows in the `patients.csv.gz` file is 299,713.
 ```{bash}
 zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/patients.csv.gz | wc -l
 ```
-The number of patients listed in the `patients.csv.gz` file is 299,712. The number of patients listed in the `patients.csv.gz` file matches the number of unique patients in the `admissions.csv.gz` file.
+The number of patients listed in the `patients.csv.gz` file is 299,712. The number of patients listed in the `patients.csv.gz` file does not match the number of unique patients in the `admissions.csv.gz` file.
 ```{bash}
 zcat < /Users/huangfeifei/Documents/203B/mimic/hosp/patients.csv.gz | tail -n +2 | awk -F, '{print $1}'  | uniq | wc -l
 ```
