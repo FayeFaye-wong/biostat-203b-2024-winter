@@ -88,7 +88,7 @@ Display the number of lines in each data file using a similar loop. (Hint: combi
 ```{bash}
 for datafile in /Users/huangfeifei/Documents/203B/mimic/hosp/{a,l,pa}*.gz
 do
-zcat < $datafile | wc -l $datafile
+zcat < $datafile | wc -l
 done
 ```
 
