@@ -3197,7 +3197,7 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 -rw-rw-r--@ 1 huangfeifei  staff    508524623 Jan  5  2023 emar.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff    471096030 Jan  5  2023 emar_detail.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff      1767138 Jan  5  2023 hcpcsevents.csv.gz
--rw-r--r--  1 huangfeifei  staff  13730083993 Jan 23 21:08 labevents.csv
+-rw-r--r--  1 huangfeifei  staff  13730083993 Jan 23 21:49 labevents.csv
 -rw-rw-r--@ 1 huangfeifei  staff   1939088924 Jan  5  2023 labevents.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff     96698496 Jan  5  2023 microbiologyevents.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff     36124944 Jan  5  2023 omr.csv.gz
@@ -3229,8 +3229,11 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 </div>
 </div>
 <ol start="3" type="1">
-<li><p>Briefly describe what Bash commands <code>zcat</code>, <code>zless</code>, <code>zmore</code>, and <code>zgrep</code> do. <strong>Answer:</strong> The <code>zcat</code> command is used to display the contents of a compressed file without actually uncompressing. The <code>zless</code> command is used to view the contents of a compressed file one screen at a time. The <code>zmore</code> command is used to view the contents of a compressed file one screen at a time. The <code>zgrep</code> command is used to search the contents of a compressed file for a string of characters.</p></li>
-<li><p>(Looping in Bash) What’s the output of the following bash script?</p></li>
+<li>Briefly describe what Bash commands <code>zcat</code>, <code>zless</code>, <code>zmore</code>, and <code>zgrep</code> do.</li>
+</ol>
+<p><strong>Answer:</strong> The <code>zcat</code> command is used to display the contents of a compressed file without actually uncompressing. The <code>zless</code> command is used to view the contents of a compressed file one screen at a time. The <code>zmore</code> command is used to view the contents of a compressed file one screen at a time. The <code>zgrep</code> command is used to search the contents of a compressed file for a string of characters.</p>
+<ol start="4" type="1">
+<li>(Looping in Bash) What’s the output of the following bash script?</li>
 </ol>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> datafile <span class="kw">in</span> /Users/huangfeifei/Documents/203B/mimic/hosp/<span class="dt">{a</span><span class="op">,</span><span class="dt">l</span><span class="op">,</span><span class="dt">pa}</span><span class="pp">*</span>.gz</span>
@@ -3393,8 +3396,8 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code> 118171368
 
-real    0m19.281s
-user    0m25.800s
+real    0m19.585s
+user    0m25.812s
 sys 0m1.613s</code></pre>
 </div>
 </div>
@@ -3403,9 +3406,9 @@ sys 0m1.613s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>       1
 
-real    0m10.080s
-user    0m6.712s
-sys 0m1.611s</code></pre>
+real    0m9.193s
+user    0m6.729s
+sys 0m1.524s</code></pre>
 </div>
 </div>
 <p>The running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is about 0m19s The running time of <code>wc -l labevents.csv</code> is about 0m8s. The compressed gz file size is 1.94G. The uncompressed file size is 13.73G. The trade off between storage and speed for big data files is that the compressed gz file size is smaller than the uncompressed file size, but the running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is longer than the running time of <code>wc -l labevents.csv</code>.</p>
@@ -3568,7 +3571,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Tue Jan 23 21:19:21 PST 2024</code></pre>
+<pre><code>Tue Jan 23 21:53:47 PST 2024</code></pre>
 </div>
 </div>
 <p>This shows the current date and time.</p>
@@ -3596,14 +3599,14 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>21:19  up 14 days,  5:32, 1 user, load averages: 4.90 3.28 2.80</code></pre>
+<pre><code>21:53  up 14 days,  6:06, 1 user, load averages: 3.22 3.12 2.95</code></pre>
 </div>
 </div>
 <p>This shows the current time, how long the system has been running, how many users are currently logged on, and the system load averages for the past 1, 5, and 15 minutes.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>huangfei tty??    Jan 23 21:19 </code></pre>
+<pre><code>huangfei tty??    Jan 23 21:53 </code></pre>
 </div>
 </div>
 <p>This shows the username of the current user who is executing the command and current time.</p>
@@ -3617,7 +3620,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>21:19  up 14 days,  5:32, 1 user, load averages: 4.90 3.28 2.80
+<pre><code>21:53  up 14 days,  6:06, 1 user, load averages: 3.22 3.12 2.95
 USER     TTY      FROM              LOGIN@  IDLE WHAT
 huangfeifei console  -                09Jan24 14days -</code></pre>
 </div>
@@ -3657,8 +3660,8 @@ shutdown  ~                         Tue Jan  9 15:46 </code></pre>
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.016s
-user    0m0.001s
+real    0m5.027s
+user    0m0.002s
 sys 0m0.003s</code></pre>
 </div>
 </div>
