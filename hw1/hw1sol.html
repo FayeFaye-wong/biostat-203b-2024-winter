@@ -3197,7 +3197,7 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 -rw-rw-r--@ 1 huangfeifei  staff    508524623 Jan  5  2023 emar.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff    471096030 Jan  5  2023 emar_detail.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff      1767138 Jan  5  2023 hcpcsevents.csv.gz
--rw-r--r--  1 huangfeifei  staff  13730083993 Jan 23 21:53 labevents.csv
+-rw-r--r--  1 huangfeifei  staff  13730083993 Jan 23 23:13 labevents.csv
 -rw-rw-r--@ 1 huangfeifei  staff   1939088924 Jan  5  2023 labevents.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff     96698496 Jan  5  2023 microbiologyevents.csv.gz
 -rw-rw-r--@ 1 huangfeifei  staff     36124944 Jan  5  2023 omr.csv.gz
@@ -3396,9 +3396,9 @@ drwxr-xr-x@ 11 huangfeifei  staff    352 Jan 16 11:14 icu</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code> 118171368
 
-real    0m19.585s
-user    0m25.987s
-sys 0m1.604s</code></pre>
+real    0m19.173s
+user    0m25.741s
+sys 0m1.601s</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3406,9 +3406,9 @@ sys 0m1.604s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>       1
 
-real    0m9.584s
-user    0m6.763s
-sys 0m1.595s</code></pre>
+real    0m10.737s
+user    0m6.534s
+sys 0m1.681s</code></pre>
 </div>
 </div>
 <p>The running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is about 0m19s The running time of <code>wc -l labevents.csv</code> is about 0m8s. The compressed gz file size is 1.94G. The uncompressed file size is 13.73G. The trade off between storage and speed for big data files is that the compressed gz file size is smaller than the uncompressed file size, but the running time of <code>zcat &lt; ~/mimic/labevents.csv.gz | wc -l</code> is longer than the running time of <code>wc -l labevents.csv</code>.</p>
@@ -3506,7 +3506,7 @@ Su Mo Tu We Th Fr Sa
     1  2  3  4  5  6  
  7  8  9 10 11 12 13  
 14 15 16 17 18 19 20  
-21 22 _2_3 24 25 26 27  
+21 22 23 24 25 _2_6 27  
 28 29 30 31           
                       </code></pre>
 </div>
@@ -3521,7 +3521,7 @@ Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa  Su Mo Tu We Th Fr Sa
     1  2  3  4  5  6               1  2  3                  1  2  
  7  8  9 10 11 12 13   4  5  6  7  8  9 10   3  4  5  6  7  8  9  
 14 15 16 17 18 19 20  11 12 13 14 15 16 17  10 11 12 13 14 15 16  
-21 22 _2_3 24 25 26 27  18 19 20 21 22 23 24  17 18 19 20 21 22 23  
+21 22 23 24 25 _2_6 27  18 19 20 21 22 23 24  17 18 19 20 21 22 23  
 28 29 30 31           25 26 27 28 29        24 25 26 27 28 29 30  
                                             31                    
 
@@ -3571,7 +3571,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Tue Jan 23 23:14:12 PST 2024</code></pre>
+<pre><code>Fri Jan 26 17:17:30 PST 2024</code></pre>
 </div>
 </div>
 <p>This shows the current date and time.</p>
@@ -3599,30 +3599,30 @@ Su Mo Tu We Th Fr Sa
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>23:14  up 14 days,  7:27, 1 user, load averages: 3.56 2.98 2.84</code></pre>
+<pre><code>17:17  up  7:54, 1 user, load averages: 2.57 2.33 1.96</code></pre>
 </div>
 </div>
 <p>This shows the current time, how long the system has been running, how many users are currently logged on, and the system load averages for the past 1, 5, and 15 minutes.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>huangfei tty??    Jan 23 23:14 </code></pre>
+<pre><code>huangfei tty??    Jan 26 17:17 </code></pre>
 </div>
 </div>
 <p>This shows the username of the current user who is executing the command and current time.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>huangfeifei console  Jan  9 15:47 </code></pre>
+<pre><code>huangfeifei console  Jan 26 09:27 </code></pre>
 </div>
 </div>
 <p>This shows more detailed information about the users who are currently logged into the system. It displays a list of all logged-in users, their terminal or device, and login time.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>23:14  up 14 days,  7:27, 1 user, load averages: 3.56 2.98 2.84
+<pre><code>17:17  up  7:54, 1 user, load averages: 2.57 2.33 1.96
 USER     TTY      FROM              LOGIN@  IDLE WHAT
-huangfeifei console  -                09Jan24 14days -</code></pre>
+huangfeifei console  -                 9:27    7:50 -</code></pre>
 </div>
 </div>
 <p>Information about the currently logged-in users and their activities on a system. It provides a detailed overview of each user’s login session, including their username, terminal or device, login time, idle time.</p>
@@ -3636,16 +3636,16 @@ huangfeifei console  -                09Jan24 14days -</code></pre>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">last</span> <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>huangfeifei  ttys001                   Sat Jan 20 11:22 - 11:22  (00:00)
+<pre><code>huangfeifei  ttys000                   Fri Jan 26 09:27 - 09:27  (00:00)
+huangfeifei  console                   Fri Jan 26 09:27   still logged in
+reboot    ~                         Fri Jan 26 09:23 
+shutdown  ~                         Fri Jan 26 09:23 
+huangfeifei  ttys001                   Sat Jan 20 11:22 - 11:22  (00:00)
 huangfeifei  ttys001                   Thu Jan 18 15:37 - 15:37  (00:00)
 huangfeifei  ttys001                   Sat Jan 13 11:45 - 11:45  (00:00)
 huangfeifei  ttys000                   Thu Jan 11 15:27 - 15:27  (00:00)
 huangfeifei  ttys000                   Tue Jan  9 20:55 - 20:55  (00:00)
-huangfeifei  ttys000                   Tue Jan  9 20:08 - 20:08  (00:00)
-huangfeifei  ttys000                   Tue Jan  9 20:07 - 20:07  (00:00)
-huangfeifei  console                   Tue Jan  9 15:47   still logged in
-reboot    ~                         Tue Jan  9 15:47 
-shutdown  ~                         Tue Jan  9 15:46 </code></pre>
+huangfeifei  ttys000                   Tue Jan  9 20:08 - 20:08  (00:00)</code></pre>
 </div>
 </div>
 <p>This shows the list of last logged in users. The <code>head</code> command is used to display the first 10 lines of the output.</p>
@@ -3660,7 +3660,7 @@ shutdown  ~                         Tue Jan  9 15:46 </code></pre>
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.019s
+real    0m5.017s
 user    0m0.001s
 sys 0m0.003s</code></pre>
 </div>
