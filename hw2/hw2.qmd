@@ -65,7 +65,8 @@ There are quite a few utilities in R for reading plain text data files. Let us t
 
 Which function is fastest? Is there difference in the (default) parsed data types? How much memory does each resultant dataframe or tibble use? (Hint: `system.time` measures run times; `pryr::object_size` measures memory usage.)
 
-**Answer**: `fread` and `read_csv` are similar, and the slowest is `read.csv` . `read_csv` and `fread` use very similar amount of memory, while `read.csv` uses more memory than `read_csv` and `fread`.
+**Answer**: `fread` and `read_csv` are similar, and the slowest is `read.csv` . `read_csv` and `fread` use very similar amount of memory, while `read.csv` uses more memory than `read_csv` and `fread`. There can be some differences between the functions regarding the default parsed data types. read.csv typically parses all columns as character vectors unless specifies the stringsAsFactors argument is TRUE, in which case parsed columns can be converted to factors. read_csv infers the data types of columns based on their content and returns a tibble where columns can have different data types (e.g., character, numeric, etc.). fread infers the data types of columns but may handle some types differently than the other functions. For example, it often parses character columns as factors by default.
+
 
 ```{r}
 system.time(read.csv("~/Documents/203B/mimic/hosp/admissions.csv.gz"))
@@ -95,7 +96,7 @@ object_size(fread("~/Documents/203B/mimic/hosp/admissions.csv.gz"))
 
 Re-ingest `admissions.csv.gz` by indicating appropriate column data types in `read_csv`. Does the run time change? How much memory does the result tibble use? (Hint: `col_types` argument in `read_csv`.)
 
-**Answer**: The run time is faster, and the memory usage is about 78MB.
+**Answer**: The run time doesn't change a lot but the memory usage is less.
 
 ```{r}
 read_csv("~/Documents/203B/mimic/hosp/admissions.csv.gz") |> 
@@ -104,8 +105,8 @@ read_csv("~/Documents/203B/mimic/hosp/admissions.csv.gz") |>
 
 ```{r}
 system.time(read_csv("~/Documents/203B/mimic/hosp/admissions.csv.gz", col_types =  cols(
-  subject_id = col_double(),
-  hadm_id = col_double(),
+  subject_id = col_integer(),
+  hadm_id = col_integer(),
   admittime = col_datetime(format = "%Y-%m-%d %H:%M:%S"),
   dischtime = col_datetime(format = "%Y-%m-%d %H:%M:%S"),
   admission_type = col_character(),
@@ -116,14 +117,14 @@ system.time(read_csv("~/Documents/203B/mimic/hosp/admissions.csv.gz", col_types 
   language = col_character(),
   marital_status = col_character(),
   race = col_character(),
-  edregtime = col_character()
+  edregtime = col_datetime(format = "%Y-%m-%d %H:%M:%S")
 )))
 ```
 
 ```{r}
 object_size(read_csv("~/Documents/203B/mimic/hosp/admissions.csv.gz",  col_types = cols(
-  subject_id = col_double(),
-  hadm_id = col_double(),
+  subject_id = col_integer(),
+  hadm_id = col_integer(),
   admittime = col_datetime(format = "%Y-%m-%d %H:%M:%S"),
   dischtime = col_datetime(format = "%Y-%m-%d %H:%M:%S"),
   admission_type = col_character(),
@@ -134,7 +135,7 @@ object_size(read_csv("~/Documents/203B/mimic/hosp/admissions.csv.gz",  col_types
   language = col_character(),
   marital_status = col_character(),
   race = col_character(),
-  edregtime = col_character()
+  edregtime = col_datetime(format = "%Y-%m-%d %H:%M:%S")
 )))
 ```
 
@@ -190,7 +191,7 @@ Display the first 10 lines of the new file `labevents_filtered.csv.gz`. How many
 **Answer**:
 ```{bash}
 #| eval: false
-zcat < ~/Documents/203B/mimic/hosp/labevents.csv.gz | awk -F, '($4 == 50912 || $4 == 50971 || $4 == 50983 || $4 == 50902 || $4 == 50882 || $4 == 51221 || $4 == 51301 || $4 == 50931) {print $1","$4","$5","$8}' | gzip > labevents_filtered.csv.gz
+zcat < ~/Documents/203B/mimic/hosp/labevents.csv.gz | awk -F, '($5 == 50912 || $5 == 50971 || $5 == 50983 || $5 == 50902 || $5 == 50882 || $5 == 51221 || $5 == 51301 || $5 == 50931) {print $2,$5,$7,$10}' | gzip > labevents_filtered.csv.gz
 ```
 
 ```{bash}
@@ -260,6 +261,10 @@ system.time({
     filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
 })
 ```
+The size of the Parquet file is about 96M.
+```{r}
+file.size("labevents.parquet")
+```
 
 ```{r}
 labevents_parquet_filtered <- as_tibble(labevents_parquet_filtered)
@@ -323,7 +328,7 @@ Document the steps and show code. Display the number of rows and the first 10 ro
 Steps:
 1. Decompress `chartevents.csv.gz` to `chartevents.csv` and put it in the current working directory.
 ```{bash}
-#l eval: false
+#| eval: false
 zcat < ~/Documents/203B/mimic/icu/chartevents.csv.gz > chartevents.csv
 ```
 2. Ingest `chartevents.csv.gz` by Apache Arrow
