@@ -98,10 +98,6 @@ Re-ingest `admissions.csv.gz` by indicating appropriate column data types in `re
 
 **Answer**: The run time doesn't change a lot but the memory usage is less.
 
-```{r}
-read_csv("~/Documents/203B/mimic/hosp/admissions.csv.gz") |> 
-  print(width = Inf)
-```
 
 ```{r}
 system.time(read_csv("~/Documents/203B/mimic/hosp/admissions.csv.gz", col_types =  cols(
@@ -237,8 +233,11 @@ nrow(labevents_arrow_filtered)
 ```
 
 ```{r}
+Sys.setenv(TZ = "America/Eastern")
 head(labevents_arrow_filtered, 10)
 ```
+It matches Q2.3.
+
 
 ### Q2.5 Compress `labevents.csv` to Parquet format and ingest/select/filter
 
