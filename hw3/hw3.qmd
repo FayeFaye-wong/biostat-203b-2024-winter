@@ -105,7 +105,7 @@ patient_diagnoses <- patient_diagnoses %>%
 Visualize the ADT history:
 
 ```{r}
-icu_ccu_rows <- patient_transfers[grepl("ICU|CCU", patient_transfers$careunit), ]
+icu_ccu_rows <- patient_transfers[grepl("(ICU|CCU)", patient_transfers$careunit), ]
 ```
 
 ```{r}
@@ -415,7 +415,7 @@ admissions_tble$los <- as.numeric(difftime(admissions_tble$dischtime,
 
 ```{r}
 plot <- ggplot(data = admissions_tble) +
-  geom_histogram(mapping = aes(x = los),bins = 20) +
+  geom_histogram(mapping = aes(x = los),bins = 100) +
   labs(title = "Distribution of Length of Hospital Stay",
        x = "Length of Hospital Stay",
        y = "Count") +
@@ -468,12 +468,12 @@ From the graph, we can see that the gender distribution is relatively balanced, 
 
 ```{r}
 plot <- ggplot(data = patients_tble) +
-  geom_histogram(mapping = aes(x = anchor_age), bins = 20) +
-  labs(title = "Distribution of anchor_age",
+  geom_histogram(mapping = aes(x = anchor_age, fill = gender), bins = 100, alpha = 0.8, position = "identity") +
+  labs(title = "Distribution of anchor_age by Gender",
        x = "anchor_age",
        y = "Count") +
   theme_minimal()
- 
+
 plotly_plot <- ggplotly(plot)
 plotly_plot
 ```
@@ -677,6 +677,11 @@ mimic_icu_cohort <- mimic_icu_cohort %>%
   filter(age_intime >= 18)
 ```
 
+```{r}
+mimic_icu_cohort
+```
+
+
 ## Q8. Exploratory data analysis (EDA)
 
 Summarize the following information about the ICU stay cohort `mimic_icu_cohort` using appropriate numerics or graphs:
@@ -697,7 +702,6 @@ Length of ICU stay `los` vs demographic variables:
 mimic_icu_cohort$race <- as.factor(mimic_icu_cohort$race)
 summary_by_race <- tapply(mimic_icu_cohort$los, mimic_icu_cohort$race, summary)
 summary_by_race_df <- as.data.frame(do.call(rbind, summary_by_race))
-summary_by_race_df$race <- rownames(summary_by_race_df)
 summary_by_race_df
 ```
 
@@ -716,7 +720,6 @@ From the graph, we can see that the distribution of ICU length of stay of differ
 mimic_icu_cohort$insurance <- as.factor(mimic_icu_cohort$insurance)
 summary_by_insurance <- tapply(mimic_icu_cohort$los, mimic_icu_cohort$insurance, summary)
 summary_by_insurance_df <- as.data.frame(do.call(rbind, summary_by_insurance))
-summary_by_insurance_df$insurance <- rownames(summary_by_insurance_df)
 summary_by_insurance_df
 ```
 
@@ -735,7 +738,6 @@ From the graph, we can see that the distribution of ICU length of stay of differ
 mimic_icu_cohort$marital_status <- as.factor(mimic_icu_cohort$marital_status)
 summary_by_marital_status <- tapply(mimic_icu_cohort$los, mimic_icu_cohort$marital_status, summary)
 summary_by_marital_status_df <- as.data.frame(do.call(rbind, summary_by_marital_status))
-summary_by_marital_status_df$marital_status <- rownames(summary_by_marital_status_df)
 summary_by_marital_status_df
 ```
 
@@ -754,7 +756,6 @@ From the graph, we can see that the distribution of ICU length of stay of differ
 mimic_icu_cohort$gender <- as.factor(mimic_icu_cohort$gender)
 summary_by_gender <- tapply(mimic_icu_cohort$los, mimic_icu_cohort$gender, summary)
 summary_by_gender_df <- as.data.frame(do.call(rbind, summary_by_gender))
-summary_by_gender_df$gender <- rownames(summary_by_gender_df)
 summary_by_gender_df
 ```
 
@@ -770,12 +771,15 @@ ggplot(mimic_icu_cohort, aes(x = gender, y = los)) +
 From the graph, we can see that the distribution of ICU length of stay of different gender are very similar, which are very right-skewed, with most of the patients (75%) stay in the ICU for about 3 days.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = age_intime, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = age_intime, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Age",
        x = "Age",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph, we can see that the distribution of ICU length of stay versus age is relatively balanced, with most of the patients (75%) stay in the ICU for less than 30 days, very a few patients stay in the ICU for more than 60 days.
@@ -783,89 +787,113 @@ From the graph, we can see that the distribution of ICU length of stay versus ag
 length of ICU stay `los` vs the last available lab measurements before ICU stay:
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Creatinine, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = Creatinine, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Creatinine",
        x = "Creatinine",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph we can see that the most patient have creatinine level less than 5, and the length of ICU stay is relatively balanced. Very few patient have creatinine level more than 20, and the length of ICU stay is relatively shorter for those patients.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Potassium, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = Potassium, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Potassium",
        x = "Potassium",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph we can see that for patient have potassium level less than 3.5 or greater than 6.5 always have a relatively shorter length of ICU stay, usually less than 30. However, for patient have potassium level between 3.5 and 6.5, the length of ICU stay is relatively right-skewed, with a long tail of staying more than 60 days.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Sodium, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = Sodium, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Sodium",
        x = "Sodium",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph we can see that for patient have sodium level less than 125 or greater than 150 always have a relatively shorter length of ICU stay, usually less than 30. However, for patient have sodium level between 130 and 150, the length of ICU stay is relatively right-skewed, with a long tail of staying more than 60 days.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Chloride, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = Chloride, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Chloride",
        x = "Chloride",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph we can see that for patient have chloride level less than 90 or greater than 110 always have a relatively shorter length of ICU stay, usually less than 30. However, for patient have chloride level between 90 and 110, the length of ICU stay is relatively right-skewed, with a long tail of staying more than 60 days.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Bicarbonate, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = Bicarbonate, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Bicarbonate",
        x = "Bicarbonate",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph we can see that for patient have bicarbonate level less than 15 or greater than 35 always have a relatively shorter length of ICU stay, usually less than 30. However, for patient have bicarbonate level between 15 and 35, the length of ICU stay is relatively right-skewed, with a long tail of staying more than 60 days.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Hematocrit, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = Hematocrit, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Hematocrit",
        x = "Hematocrit",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph we can see that for patient have hematocrit level less than 20 or greater than 50 always have a relatively shorter length of ICU stay, usually less than 30. However, for patient have hematocrit level between 20 and 50, the length of ICU stay is relatively right-skewed, with a long tail of staying more than 60 days.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = `White Blood Cells`, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = `White Blood Cells`, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by White Blood Cell Count",
        x = "White Blood Cell Count",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph we can see that most patient have white blood cell count less than 50 and have a relatively right-skewed length of ICU stay. However, for patient have white blood cell count between 50 and 100, the length of ICU stay is relatively balanced, with most of the patients stay in the ICU for less than 30 days. Only a few patient have white blood cell count more than 400, and the length of ICU stay is relatively shorter for those patients.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Glucose, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = Glucose, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Glucose",
        x = "Glucose",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph we can see that most patient have glucose level less than 200 and have a relatively right-skewed length of ICU stay. However, for patient have glucose level between 200 and 1500, the length of ICU stay is relatively balanced, with most of the patients stay in the ICU for less than 30 days. Only a few patient have glucose level more than 1500, and the length of ICU stay is relatively shorter for those patients.
@@ -873,56 +901,72 @@ From the graph we can see that most patient have glucose level less than 200 and
 Length of ICU stay `los` vs the average vital measurements within the first hour of ICU stay:
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = `Heart Rate`, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = `Heart Rate`, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Heart Rate",
        x = "Heart Rate",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph, we can see that the distribution of ICU length of stay versus heart rate is relatively right-skewed. Most patient have Heart Rate around 75 and stay for about 3 days, and it's unusual that some patients have a heart rate that is more than 200.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = `Non Invasive Blood Pressure systolic`, y = los)) +
+plot<- ggplot(mimic_icu_cohort, aes(x = `Non Invasive Blood Pressure systolic`, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Systolic Blood Pressure",
        x = "Systolic Blood Pressure",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph, we can see that the distribution of ICU length of stay versus systolic blood pressure is relatively right-skewed. Most patient have Systolic Blood Pressure around 120 and stay for about 3 days, and it's unusual that some patients have a Systolic Blood Pressure that is more than 12500
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = `Non Invasive Blood Pressure diastolic`, y = los)) +
+plot<- ggplot(mimic_icu_cohort, aes(x = `Non Invasive Blood Pressure diastolic`, 
+                                    y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Diastolic Blood Pressure",
        x = "Diastolic Blood Pressure",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph, we can see that the distribution of ICU length of stay versus diastolic blood pressure is relatively right-skewed. Most patient have Diastolic Blood Pressure around 80 and stay for about 3 days, and it's unusual that some patients have a Diastolic Blood Pressure that is more than 60000.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = `Temperature Fahrenheit`, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = `Temperature Fahrenheit`, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Temperature",
        x = "Temperature",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph, we can see that the distribution of ICU length of stay versus temperature is relatively right-skewed Most patient have temperature around 98 and stay for about 3 days, and it's unusual that some patients have a temperature that is more than 1000.
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = `Respiratory Rate`, y = los)) +
+plot <- ggplot(mimic_icu_cohort, aes(x = `Respiratory Rate`, y = los)) +
   geom_hex() +
   labs(title = "Distribution of ICU Length of Stay by Respiratory Rate",
        x = "Respiratory Rate",
        y = "Length of Stay (days)") +
   theme_minimal()
+
+plotly_plot <- ggplotly(plot)
+plotly_plot
 ```
 
 From the graph, we can see that the distribution of ICU length of stay versus respiratory rate is relatively right-skewed. Most patient have respiratory rate around 20 and stay for about 3 days, and it's unusual that some patients have a respiratory rate that is more than 75.
@@ -933,7 +977,6 @@ Length of ICU stay `los` vs first ICU unit:
 mimic_icu_cohort$first_careunit <- as.factor(mimic_icu_cohort$first_careunit)
 summary_by_first_careunit <- tapply(mimic_icu_cohort$los, mimic_icu_cohort$first_careunit, summary)
 summary_by_first_careunit_df <- as.data.frame(do.call(rbind, summary_by_first_careunit))
-summary_by_first_careunit_df$first_careunit <- rownames(summary_by_first_careunit_df)
 summary_by_first_careunit_df
 ```
 
