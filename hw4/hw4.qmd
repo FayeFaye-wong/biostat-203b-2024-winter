@@ -30,6 +30,7 @@ library(DBI)
 library(gt)
 library(gtsummary)
 library(tidyverse)
+library(forcats)
 ```
 
 ## Q1. Compile the ICU cohort in HW3 from the Google BigQuery database 
@@ -194,6 +195,37 @@ Perform the following preprocessing steps. (i) Lump infrequent levels into "Othe
 Hint: Below is a numerical summary of my tibble after preprocessing:
 
 <iframe width=95% height="500" src="./mimic_icu_cohort_gtsummary.html"></iframe>
+
+From the above result, we know there is at total 73,181 rows, we make those appear less than 10% of the total rows into "Other" level. 
+
+```{r}
+mimic_icu_cohort_preprocessed <- mimic_icu_cohort |>
+  mutate(
+    first_careunit = fct_lump(first_careunit, n = 0.1*73181),
+    last_careunit = fct_lump(last_careunit, n = 0.1*73181),
+    admission_type = fct_lump(admission_type, n = 0.1*73181),
+    admission_location = fct_lump(admission_location, n = 0.1*73181),
+    discharge_location = fct_lump(discharge_location, n = 0.1*73181)) |>
+  mutate(
+    race = ifelse(grepl("WHITE", race), "White",
+                 ifelse(grepl("BLACK", race), "Black",
+                        ifelse(grepl("ASIAN", race), "Asian",
+                               ifelse(grepl("HISPANIC", race), 
+                                      "Hispanic", "Other"))))) |>
+  mutate(los_long = los >= 2) |>
+  select(first_careunit, last_careunit, admission_type, admission_location,
+         discharge_location, los, insurance, language, marital_status, race,
+         hospital_expire_flag, gender, dod, Sodium, Potassium, Chloride, 
+         Creatinine, Bicarbonate, Glucose, Hematocrit, `White Blood Cells`, 
+         `Heart Rate`, `Non Invasive Blood Pressure systolic`, 
+         `Non Invasive Blood Pressure diastolic`, `Temperature Fahrenheit`, 
+          `Respiratory Rate`, age, los_long) |>
+  tbl_summary(by = los_long) |>
+  as_gt() |>
+  print(width = Inf)
+```
+    
+
 
 ### Q1.9 Save the final tibble
 
