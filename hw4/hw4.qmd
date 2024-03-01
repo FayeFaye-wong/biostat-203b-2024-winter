@@ -31,6 +31,7 @@ library(gt)
 library(gtsummary)
 library(tidyverse)
 library(forcats)
+library(shiny)
 ```
 
 ## Q1. Compile the ICU cohort in HW3 from the Google BigQuery database 
@@ -192,13 +193,9 @@ mimic_icu_cohort <- icustays_tble |>
 
 Perform the following preprocessing steps. (i) Lump infrequent levels into "Other" level for `first_careunit`, `last_careunit`, `admission_type`, `admission_location`, and `discharge_location`. (ii) Collapse the levels of `race` into `ASIAN`, `BLACK`, `HISPANIC`, `WHITE`, and `Other`. (iii) Create a new variable `los_long` that is `TRUE` when `los` is greater than or equal to 2 days. (iv) Summarize the data using `tbl_summary()`, stratified by `los_long`. Hint: `fct_lump` and `fct_collapse` from the `forcats` package can be useful.
 
-Hint: Below is a numerical summary of my tibble after preprocessing:
-
-<iframe width=95% height="500" src="./mimic_icu_cohort_gtsummary.html"></iframe>
-
 From the above result, we know there is at total 73,181 rows, we make those appear less than 10% of the total rows into "Other" level. 
 
-```{r}
+```{r, results='asis'}
 mimic_icu_cohort_preprocessed <- mimic_icu_cohort |>
   mutate(
     first_careunit = fct_lump(first_careunit, n = 0.1*73181),
@@ -221,8 +218,8 @@ mimic_icu_cohort_preprocessed <- mimic_icu_cohort |>
          `Non Invasive Blood Pressure diastolic`, `Temperature Fahrenheit`, 
           `Respiratory Rate`, age, los_long) |>
   tbl_summary(by = los_long) |>
-  as_gt() |>
-  print(width = Inf)
+  as_gt()
+mimic_icu_cohort_preprocessed
 ```
     
 
@@ -251,3 +248,7 @@ Although it is not a good practice to add big data files to git, for grading pur
 ## Q2. Shiny app
 
 Develop a Shiny app for exploring the ICU cohort data created in Q1. The app should reside in the `mimiciv_shiny` folder. The app should contain at least two tabs. One tab provides easy access to the graphical and numerical summaries of variables (demographics, lab measurements, vitals) in the ICU cohort. The other allows user to choose a specific patient in the cohort and display the patient's ADT and ICU stay information as we did in Q1 of HW3.
+
+
+
+
