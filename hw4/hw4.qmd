@@ -193,16 +193,20 @@ mimic_icu_cohort <- icustays_tble |>
 
 Perform the following preprocessing steps. (i) Lump infrequent levels into "Other" level for `first_careunit`, `last_careunit`, `admission_type`, `admission_location`, and `discharge_location`. (ii) Collapse the levels of `race` into `ASIAN`, `BLACK`, `HISPANIC`, `WHITE`, and `Other`. (iii) Create a new variable `los_long` that is `TRUE` when `los` is greater than or equal to 2 days. (iv) Summarize the data using `tbl_summary()`, stratified by `los_long`. Hint: `fct_lump` and `fct_collapse` from the `forcats` package can be useful.
 
-From the above result, we know there is at total 73,181 rows, we make those appear less than 10% of the total rows into "Other" level. 
 
 ```{r, results='asis'}
-mimic_icu_cohort_preprocessed <- mimic_icu_cohort |>
+mimic_icu_cohort <- mimic_icu_cohort |>
   mutate(
-    first_careunit = fct_lump(first_careunit, n = 0.1*73181),
-    last_careunit = fct_lump(last_careunit, n = 0.1*73181),
-    admission_type = fct_lump(admission_type, n = 0.1*73181),
-    admission_location = fct_lump(admission_location, n = 0.1*73181),
-    discharge_location = fct_lump(discharge_location, n = 0.1*73181)) |>
+    first_careunit = fct_lump(first_careunit, n = 5, 
+                              other_level = "Other"),
+    last_careunit = fct_lump(last_careunit, n = 5, 
+                             other_level = "Other"),
+    admission_type = fct_lump(admission_type, n = 5, 
+                              other_level = "Other"),
+    admission_location = fct_lump(admission_location, n = 5, 
+                                  other_level = "Other"),
+    discharge_location = fct_lump(discharge_location, n = 5, 
+                                  other_level = "Other")) |>
   mutate(
     race = ifelse(grepl("WHITE", race), "White",
                  ifelse(grepl("BLACK", race), "Black",
@@ -210,6 +214,8 @@ mimic_icu_cohort_preprocessed <- mimic_icu_cohort |>
                                ifelse(grepl("HISPANIC", race), 
                                       "Hispanic", "Other"))))) |>
   mutate(los_long = los >= 2) |>
+  collect() 
+mimic_icu_cohort_sum <- mimic_icu_cohort |>
   select(first_careunit, last_careunit, admission_type, admission_location,
          discharge_location, los, insurance, language, marital_status, race,
          hospital_expire_flag, gender, dod, Sodium, Potassium, Chloride, 
@@ -219,7 +225,7 @@ mimic_icu_cohort_preprocessed <- mimic_icu_cohort |>
           `Respiratory Rate`, age, los_long) |>
   tbl_summary(by = los_long) |>
   as_gt()
-mimic_icu_cohort_preprocessed
+mimic_icu_cohort_sum
 ```
     
 
@@ -249,6 +255,8 @@ Although it is not a good practice to add big data files to git, for grading pur
 
 Develop a Shiny app for exploring the ICU cohort data created in Q1. The app should reside in the `mimiciv_shiny` folder. The app should contain at least two tabs. One tab provides easy access to the graphical and numerical summaries of variables (demographics, lab measurements, vitals) in the ICU cohort. The other allows user to choose a specific patient in the cohort and display the patient's ADT and ICU stay information as we did in Q1 of HW3.
 
+**Answer:**
+Have been submitted in the `mimiciv_shiny` folder. The app is named `app.R`.
 
 
 
