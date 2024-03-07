@@ -103,7 +103,8 @@ ui <- fluidPage(
              ),
              tabPanel("Patient Info",
                       selectInput("patient_id", "Select Patient ID", 
-                                  choices = sort(unique(mimic_icu_cohort$subject_id))),
+                                  choices = sort(unique(
+                                    mimic_icu_cohort$subject_id))),
                       plotOutput("patient_info1"),
                       plotOutput("patient_info2")
              )
