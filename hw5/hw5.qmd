@@ -1,0 +1,177 @@
+---
+title: "Biostat 203B Homework 5"
+subtitle: Due Mar 22 @ 11:59PM
+author: Feiyang Huang, UID 306148942
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+---
+
+## Predicting ICU duration
+
+Using the ICU cohort `mimiciv_icu_cohort.rds` you built in Homework 4, develop at least three machine learning approaches (logistic regression with enet regularization, random forest, boosting, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. You algorithms can use patient demographic information (gender, age at ICU `intime`, marital status, race), ICU admission information (first care unit), the last lab measurements before the ICU stay, and first vital measurements during ICU stay as features. You are welcome to use any feature engineering techniques you think are appropriate; but make sure to not use features that are not available at an ICU stay's `intime`. For instance, `last_careunit` cannot be used in your algorithms. 
+
+1. Data preprocessing and feature engineering.
+
+Necessary packages:
+```{r}
+library(dplyr)
+library(tidymodels)
+library(GGally)
+library(gtsummary)
+library(tidyverse)
+library(ranger)
+library(xgboost)
+library(kernlab)
+library(keras)
+library(ggplot2)
+library(gridExtra)
+```
+
+
+Read data:
+```{r}
+mimic_icu_cohort <- readRDS("~/mimiciv_shiny/mimic_icu_cohort.rds")
+```
+
+Data preprocessing:
+
+For time data, we can calculate the time interval instead of use the date directly. For example, we can calculate the time interval between the intime and outtime to represent the stay duration in ICU.
+
+```{r}
+mimic_icu_cohort <- mimic_icu_cohort |>
+  mutate(intime = as.POSIXct(intime),
+         outtime = as.POSIXct(outtime),
+         ICU_stay = difftime(outtime, intime, units = "hours"),
+         ICU_stay = as.numeric(ICU_stay)) |>
+  select(-intime, -outtime) |>
+  mutate(admittime = as.POSIXct(admittime),
+         dischtime = as.POSIXct(dischtime),
+         deathtime = as.POSIXct(deathtime),
+         stay_duration = ifelse(is.na(deathtime), 
+                                difftime(dischtime, 
+                                         admittime, units = "hours"), 
+                                difftime(deathtime, 
+                                         admittime, units = "hours")),
+         stay_duration = as.numeric(stay_duration)) |>
+  select(-admittime, -dischtime, -deathtime) |>
+  mutate(edregtime = as.POSIXct(edregtime),
+         edouttime = as.POSIXct(edouttime),
+         ED_stay = difftime(edouttime, edregtime, units = "hours"),
+         ED_stay = as.numeric(ED_stay)) |>
+  select(-edregtime, -edouttime, -dod)
+
+```
+
+Use mena to fill in missing values for numeric variables, and use mode to fill in missing values for categorical variables.
+
+
+```{r}
+mimic_icu_cohort <- mimic_icu_cohort |>
+  mutate(los_long = ifelse(los > 2, 1, 0)) |>
+  mutate(hospital_expire_flag = as.factor(hospital_expire_flag), 
+         across(where(is.numeric), 
+                ~ifelse(is.na(.), mean(., na.rm = TRUE), .))) |>
+  mutate(discharge_location = as.character(discharge_location),
+         across(where(is.character), 
+                ~ifelse(is.na(.), names(which.max(table(.))), .))) |>
+  mutate(across(where(is.character), as.factor))
+```
+
+Feature engineering:
+
+```{r}
+truncate_legend <- function(x) {
+  ifelse(nchar(x) > 15, substr(x, 1, 15), x)
+}
+
+factor_vars <- sapply(mimic_icu_cohort, is.factor)
+factor_vars_names <- names(factor_vars)[factor_vars]
+
+plot_list <- list()
+for (var in factor_vars_names) {
+  if (var != "los_long" && var != "admit_provider_id") {
+    p <- ggplot(data = mimic_icu_cohort, 
+                aes(x = factor(truncate_legend(as.character(.data[[var]]))), 
+                    fill = factor(los_long))) +
+      geom_bar(position = "dodge", alpha = 0.8) +
+      labs(title = paste("Bar chart of", var),
+           x = var, y = "Frequency", fill = "los_long", size = 5) +  
+      scale_shape_manual() + 
+      theme_minimal() + 
+      theme(axis.text.x = element_text(angle = 20, size = 5, hjust = 1),
+            axis.text.y = element_text(size = 5),
+            axis.title = element_text(size = 5),
+            plot.title = element_text(size = 5),
+            legend.text = element_text(size = 5),
+            legend.title = element_text(size = 5),
+            legend.key.size = unit(0.1, "cm"))
+     plot_list[[var]] <- p
+  }
+}
+
+grid.arrange(grobs = plot_list, ncol = 3)
+```
+
+```{r}
+
+
+numeric_vars <- sapply(mimic_icu_cohort, is.numeric)
+numeric_vars_names <- names(numeric_vars)[numeric_vars]
+plot_list <- list()
+for (var in numeric_vars_names) {
+  if (var != "los_long" && var != "subject_id" 
+      && var != "hadm_id" &&  var != "stay_id" && var != "los") {
+    p <- ggplot(data = mimic_icu_cohort, aes(x = .data[[var]], 
+                                             fill = as.factor(los_long))) + 
+      geom_histogram(bins = 20, position = "identity", alpha = 0.6) +
+      labs(title = paste("Distribution of", var),
+           x = var, y = "Frequency") +
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 10, size = 5, hjust = 1),
+            axis.text.y = element_text(size = 5),
+            axis.title = element_text(size = 5),
+            plot.title = element_text(size = 5),
+            legend.text = element_text(size = 5),
+            legend.title = element_text(size = 5),
+            legend.key.size = unit(0.1, "cm")) +
+      scale_fill_manual(values = c("skyblue2", "salmon2"),
+                                          labels = c("0" = "< 2days", 
+                                                     "1" = "> 2 days"),
+                                          name = "Los_long")
+    plot_list[[var]] <- p
+  }
+}
+grid.arrange(grobs = plot_list, ncol = 4)
+```
+
+We can see from the plots that the distribution of demographic variables and lab measurements are very similar for patients with stay for 2 days or not.
+
+
+
+2. Partition data into 50% training set and 50% test set. Stratify partitioning according to `los_long`. For grading purpose, sort the data by `subject_id`, `hadm_id`, and `stay_id` and use the seed `203` for the initial data split. Below is the sample code.
+```{r}
+#| eval: false
+set.seed(203)
+
+# sort
+mimiciv_icu_cohort <- mimiciv_icu_cohort |>
+  arrange(subject_id, hadm_id, stay_id)
+
+data_split <- initial_split(
+  mimiciv_icu_cohort, 
+  # stratify by los_long
+  strata = "los_long", 
+  prop = 0.5
+  )
+```
+
+3. Train and tune the models using the training set.
+
+4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
