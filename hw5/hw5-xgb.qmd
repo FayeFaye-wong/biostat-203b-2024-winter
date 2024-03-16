@@ -1,0 +1,200 @@
+---
+title: "Biostat 203B Homework 5"
+subtitle: Due Mar 22 @ 11:59PM
+author: Feiyang Huang, UID 306148942
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+---
+
+## Predicting ICU duration
+
+Using the ICU cohort `mimiciv_icu_cohort.rds` you built in Homework 4, develop at least three machine learning approaches (logistic regression with enet regularization, random forest, boosting, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. You algorithms can use patient demographic information (gender, age at ICU `intime`, marital status, race), ICU admission information (first care unit), the last lab measurements before the ICU stay, and first vital measurements during ICU stay as features. You are welcome to use any feature engineering techniques you think are appropriate; but make sure to not use features that are not available at an ICU stay's `intime`. For instance, `last_careunit` cannot be used in your algorithms. 
+
+1. Data preprocessing and feature engineering.
+
+2. Partition data into 50% training set and 50% test set. Stratify partitioning according to `los_long`. For grading purpose, sort the data by `subject_id`, `hadm_id`, and `stay_id` and use the seed `203` for the initial data split. Below is the sample code.
+
+3. Train and tune the models using the training set.
+
+4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
+
+**Answer Part:**
+
+Necessary packages:
+```{r}
+library(dplyr)
+library(tidymodels)
+library(GGally)
+library(gtsummary)
+library(tidyverse)
+library(ranger)
+library(kernlab)
+library(keras)
+library(xgboost)
+library(stacks)
+library(vip)
+```
+
+
+Read data:
+```{r}
+mimic_icu_cohort <- readRDS("~/mimiciv_shiny/mimic_icu_cohort.rds")
+```
+
+Data preprocessing:
+
+For time data, we can calculate the time interval instead of use the date directly. For example, we can calculate the time interval between the intime and outtime to represent the stay duration in ICU.
+
+```{r}
+mimic_icu_cohort <- mimic_icu_cohort |>
+  mutate(los_long = ifelse(los > 2, 1, 0)) |>
+  mutate(los_long = as.factor(los_long)) |>
+  select(-admit_provider_id, -hospital_expire_flag,-anchor_age, -anchor_year,
+         -anchor_year_group, -intime, -outtime, -edregtime, -edouttime, -dod,
+         -admittime, -dischtime, -deathtime, -los, -discharge_location,
+         -last_careunit, -admission_location, admission_type)
+```
+
+
+```{r}
+# Check missing value for each column
+missing_values <- colSums(is.na(mimic_icu_cohort))
+missing_values
+```
+
+
+```{r}
+set.seed(203)
+
+# sort
+mimiciv_icu_cohort <- mimic_icu_cohort |>
+  arrange(subject_id, hadm_id, stay_id) |>
+  select(-subject_id, -hadm_id, -stay_id)
+
+data_split <- initial_split(
+  mimiciv_icu_cohort, 
+  # stratify by los_long
+  strata = "los_long", 
+  prop = 0.5
+  )
+
+# training set
+mimiciv_icu_cohort_train <- training(data_split)
+
+# test set
+mimiciv_icu_cohort_test <- testing(data_split)
+```
+
+```{r}
+folds <- vfold_cv(mimiciv_icu_cohort_train, v = 3)
+```
+
+XGboost:
+
+```{r}
+gb_recipe <- 
+  recipe(
+    los_long ~ ., 
+    data = mimiciv_icu_cohort_train
+  ) |>
+  step_impute_mean(all_numeric_predictors()) |>
+  step_impute_mode(marital_status) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_numeric_predictors()) |>
+  print()
+```
+
+
+```{r}
+gb_mod <- 
+  boost_tree(
+    mode = "classification",
+    trees = 500, 
+    tree_depth = tune(),
+    learn_rate = tune()
+  ) |> 
+  set_engine("xgboost")
+gb_mod
+```
+
+```{r}
+gb_wf <- workflow() |>
+  add_recipe(gb_recipe) |>
+  add_model(gb_mod |>
+              set_engine("xgboost", importance = "permutation"))
+gb_wf
+```
+
+```{r}
+gb_grid <- grid_regular(
+  tree_depth(range = c(1L, 3L)),
+  learn_rate(range = c(-5, 2), trans = log10_trans()),
+  levels = c(3, 5)
+  )
+```
+
+```{r}
+gb_fit <- gb_wf |>
+  tune_grid(
+    resamples = folds,
+    grid = gb_grid,
+    metrics = metric_set(roc_auc, accuracy)
+    )
+gb_fit
+```
+
+```{r}
+gb_fit |>
+  collect_metrics() |>
+  print(width = Inf) |>
+  filter(.metric == "roc_auc") |>
+  ggplot(mapping = aes(x = learn_rate, y = mean, color = factor(tree_depth))) +
+  geom_point() +
+  labs(x = "Learning Rate", y = "CV AUC") +
+  scale_x_log10()
+```
+
+```{r}
+gb_fit |>
+  show_best("roc_auc")
+```
+
+```{r}
+best_gb <- gb_fit |>
+  select_best("roc_auc")
+```
+
+```{r}
+final_wf <- gb_wf |>
+  finalize_workflow(best_gb)
+final_wf
+```
+
+```{r}
+final_fit <- 
+  final_wf |>
+  last_fit(data_split)
+```
+
+```{r}
+final_fit |> 
+  collect_metrics()
+```
+
+```{r}
+saveRDS(gb_grid, file = "gb_grid.rds")
+saveRDS(gb_wf, file = "gb_wf.rds")
+```
+
+```{r}
+final_fit |>
+  extract_fit_parsnip() |>
+  vip(num_features = 10)
+```
