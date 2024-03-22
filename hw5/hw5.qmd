@@ -1,0 +1,249 @@
+---
+title: "Biostat 203B Homework 5"
+subtitle: Due Mar 22 @ 11:59PM
+author: Feiyang Huang, UID 306148942
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+---
+
+## Predicting ICU duration
+
+Using the ICU cohort `mimiciv_icu_cohort.rds` you built in Homework 4, develop at least three machine learning approaches (logistic regression with enet regularization, random forest, boosting, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. You algorithms can use patient demographic information (gender, age at ICU `intime`, marital status, race), ICU admission information (first care unit), the last lab measurements before the ICU stay, and first vital measurements during ICU stay as features. You are welcome to use any feature engineering techniques you think are appropriate; but make sure to not use features that are not available at an ICU stay's `intime`. For instance, `last_careunit` cannot be used in your algorithms. 
+
+1. Data preprocessing and feature engineering.
+
+2. Partition data into 50% training set and 50% test set. Stratify partitioning according to `los_long`. For grading purpose, sort the data by `subject_id`, `hadm_id`, and `stay_id` and use the seed `203` for the initial data split. Below is the sample code.
+
+3. Train and tune the models using the training set.
+
+4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
+
+**Answer Part:**
+
+Necessary packages:
+```{r}
+library(dplyr)
+library(tidymodels)
+library(GGally)
+library(gtsummary)
+library(tidyverse)
+library(ranger)
+library(kernlab)
+library(keras)
+library(xgboost)
+library(stacks)
+```
+
+
+Read data:
+```{r}
+mimic_icu_cohort <- readRDS("~/mimiciv_shiny/mimic_icu_cohort.rds")
+```
+
+Data preprocessing:
+
+For time data, we can calculate the time interval instead of use the date directly. For example, we can calculate the time interval between the intime and outtime to represent the stay duration in ICU.
+
+```{r}
+mimic_icu_cohort <- mimic_icu_cohort |>
+  mutate(los_long = ifelse(los > 2, 1, 0)) |>
+  mutate(los_long = as.factor(los_long)) |>
+  select(-admit_provider_id, -hospital_expire_flag,-anchor_age, -anchor_year,
+         -anchor_year_group, -intime, -outtime, -edregtime, -edouttime, -dod,
+         -admittime, -dischtime, -deathtime, -los, -discharge_location,
+         -last_careunit, -admission_location, admission_type)
+```
+
+
+```{r}
+# Check missing value for each column
+missing_values <- colSums(is.na(mimic_icu_cohort))
+missing_values
+```
+
+
+```{r}
+set.seed(203)
+
+# sort
+mimiciv_icu_cohort <- mimic_icu_cohort |>
+  arrange(subject_id, hadm_id, stay_id) |>
+  select(-subject_id, -hadm_id, -stay_id)
+
+data_split <- initial_split(
+  mimiciv_icu_cohort, 
+  # stratify by los_long
+  strata = "los_long", 
+  prop = 0.5
+  )
+
+# training set
+mimiciv_icu_cohort_train <- training(data_split)
+
+# test set
+mimiciv_icu_cohort_test <- testing(data_split)
+```
+
+
+Here we decide to use logistic regression, random forest, and XGboost as the machine learning algorithms. We will use the `tidymodels` package to train and tune the models. Then we will use the `stacks` package to stack the models and compare the performance.
+
+```{r}
+logit_grid <- readRDS("logit_grid.rds")
+logit_wf <- readRDS("logit_wf.rds")
+rf_grid <- readRDS("rf_grid.rds")
+rf_wf <- readRDS("rf_wf.rds")
+gb_grid <- readRDS("gb_grid.rds")
+gb_wf <- readRDS("gb_wf.rds")
+```
+
+
+
+```{r}
+folds <- vfold_cv(mimiciv_icu_cohort_train, v = 3)
+```
+
+```{r}
+logit_res <- 
+  tune_grid(
+    object = logit_wf, 
+    resamples = folds, 
+    grid = logit_grid,
+    control = control_stack_grid()
+  )
+logit_res
+```
+
+```{r}
+rf_res <- 
+  tune_grid(
+    object = rf_wf, 
+    resamples = folds, 
+    grid = rf_grid,
+    control = control_stack_grid()
+  )
+rf_res
+```
+
+```{r}
+gb_res <- 
+  tune_grid(
+    object = gb_wf, 
+    resamples = folds, 
+    grid = gb_grid,
+    control = control_stack_grid()
+  )
+gb_res
+```
+
+Model stacking:
+
+```{r}
+mimic_recipe <- 
+  recipe(
+    los_long ~ ., 
+    data = mimiciv_icu_cohort_train
+  ) |>
+  step_impute_mean(all_numeric_predictors()) |>
+  step_impute_mode(marital_status) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_numeric_predictors()) |>
+  print()
+```
+
+
+```{r}
+model_stack <- stacks() |>
+  add_candidates(logit_res) |>
+  add_candidates(rf_res) |>
+  add_candidates(gb_res) |>
+  blend_predictions(
+    penalty = 10^(-5:0),
+    metrics = c("roc_auc"),
+    times = 3
+    ) |>
+  fit_members()
+model_stack
+```
+
+```{r}
+autoplot(model_stack)
+```
+
+```{r}
+autoplot(model_stack, type = "members")
+```
+
+```{r}
+autoplot(model_stack, type = "weights")
+```
+
+```{r}
+collect_parameters(model_stack, "rf_res")
+```
+
+```{r}
+mimic_pred <- mimiciv_icu_cohort_test %>%
+  bind_cols(predict(model_stack, ., type = "prob")) %>%
+  print(width = Inf)
+```
+
+```{r}
+yardstick::roc_auc(
+  mimic_pred,
+  truth = los_long,
+  contains(".pred_0")
+  )
+```
+```{r}
+mimic_pred <-
+  mimiciv_icu_cohort_test |>
+  select(los_long) |>
+  bind_cols(
+    predict(
+      model_stack,
+      mimiciv_icu_cohort_test,
+      type = "class",
+      members = TRUE
+      )
+    ) |>
+  print(width = Inf)
+```
+
+
+
+```{r}
+map(
+  colnames(mimic_pred),
+  ~mean(mimic_pred$los_long == pull(mimic_pred, .x))
+  ) |>
+  set_names(colnames(mimic_pred)) |>
+  as_tibble() |>
+  pivot_longer(c(everything(), -los_long))
+```
+
+**Model Perfomance:**
+The logistic regression model has the lowest AUC and accuracy at 0.5923 and 0.5705 respectively, but the running time is relatively short. The random forest model has a highter AUC and accuracy at 0.6423 and 0.6019, but the running time is relatively long. The XGboost model has a similar AUC and accuracy to the random forest model at 0.6423 and 0.6052, and similar running time. The model stacking has a similar AUC and accuracy to the random forest model at 0.6521 and 0.6076, but the running time is much longer. 
+
+The most important features in predicting long ICU stays are the first care unit, creatinine and age according to the feature importance scores from each model (shown in the model's separate code.)
+
+**Interpretability:**
+
+1. **Logistic Regression (LR)**:
+LR models are highly interpretable. The coefficients assigned to each feature directly indicate its impact on the prediction. Positive coefficients indicate a positive association with the target variable, while negative coefficients indicate a negative association. LR models can be easily explained to non-technical stakeholders because the relationship between the features and the target variable is linear and easily understandable.
+
+2. **Random Forest (RF)**:
+RF models are less interpretable than LR models. While RF provides feature importance scores, these scores may not directly correspond to the impact of each feature on the prediction in a simple, linear manner. The interactions between features are captured in a more complex way. Although RF provides feature importance scores, explaining the predictions of RF models might be challenging due to the complex decision-making process involving multiple decision trees.
+
+3. **XGBoost (XGB)**:
+XGB models are less interpretable than LR but more interpretable than RF. XGB provides feature importance scores similar to RF but tends to capture complex non-linear relationships more effectively. While XGB provides feature importance scores, explaining the predictions of XGB models might still require some effort due to the complexity introduced by boosting algorithms.
+
+4. **Stacking Models**:
+Stacking models are generally less interpretable than individual base models like LR, RF, or XGB. Blending predictions from multiple models adds another layer of complexity to interpretation. Stacking models involves combining predictions from multiple models, which makes it challenging to provide a straightforward explanation for the final predictions. However, feature importance from individual base models used in stacking can still offer some insights into which features are influential.
+
